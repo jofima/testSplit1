@@ -21,7 +21,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
  */
 
 
-public class DataWork {
+public class DataWorkList {
 
 	//String addressStr; 
 	int maxNumCells;
@@ -44,7 +44,7 @@ public class DataWork {
 	
 	//Constructor that receives the file and separates the excel cells 
 	@SuppressWarnings( "unchecked" )
-	public DataWork(File openFile) {
+	public DataWorkList(File openFile) {
 
 		try {
 			FileInputStream file = new FileInputStream(openFile);
