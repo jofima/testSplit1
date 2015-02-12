@@ -99,6 +99,7 @@ public class DataWorkList {
 		mapIt();
 		}catch (Exception e){
 			JOptionPane.showMessageDialog(null,"ERRO AO PROCESSAR FICHEIRO","ERRO",JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
 		}
 
 	}// end of constructor
@@ -127,7 +128,7 @@ public class DataWorkList {
 	
 		
 		//Run and process central file and inoSat file
-		new CentralData().central();
+		//new CentralData().central();
 
 		new InosatData().inosat();
 		

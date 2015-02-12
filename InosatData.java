@@ -29,7 +29,7 @@ import org.apache.poi.ss.usermodel.Row;
  * into a new List
  * 
  * Finding the door number I searched the address with regular expressions and
- * obtained the start and end index
+ * obtained the start and end index through the FindPattern class
  * 
  * 
  */
@@ -42,27 +42,36 @@ public class InosatData {
 	//@SuppressWarnings("rawtypes")
 	//Map writeMap = new TreeMap();
 
-	List<String> inoAddressValues = new ArrayList<String>();
+	List<String> addressValues = new ArrayList<String>();
 	List<String> cliName = new ArrayList<String>();
 	List<String> numClie = new ArrayList<String>();
 	List<String> localidade = new ArrayList<String>();
+	List<String> nif = new ArrayList<String>();
+	List<String> telephone = new ArrayList<String>();
+	List<String> codPostal = new ArrayList<String>();
+	
+	static List<String> notProcessedClient = new ArrayList<String>();
+	static List<String> notProcessedName = new ArrayList<String>();
+	static List<String> notProcessedAddress = new ArrayList<String>();
+	static List<String> notProcessedLocal = new ArrayList<String>();
+	static List<String> notProcessedNIF = new ArrayList<String>();
+	static List<String> notProcessedTel = new ArrayList<String>();
+	static List<String> notProcessedCodPostal = new ArrayList<String>();
 
-	@SuppressWarnings("rawtypes")
-	List inoValues = new ArrayList();
-	@SuppressWarnings("rawtypes")
-	List inoFiles = new ArrayList();
-	// @SuppressWarnings("rawtypes")
-	// List writeFileIno = new ArrayList();
-	@SuppressWarnings("rawtypes")
-	List colCliente = new ArrayList();
+	List<String> centralAddress = new ArrayList<String>();
+	List<String> centralClient = new ArrayList<String>();
+	List<String> centralName = new ArrayList<String>();
+	List<String> centralTel = new ArrayList<String>();
 
-	@SuppressWarnings("rawtypes")
-	List portaNum = new ArrayList();
+	List<String> inoColCliente = new ArrayList<String>();
+	List<String> inoPortaNum = new ArrayList<String>();
+	List<String> inoNewAddress = new ArrayList<String>();
+	List<String> inoFloorNum = new ArrayList<String>();
+	List<String> inoLocal = new ArrayList<String>();
+	List<String> inoCodigoPost = new ArrayList<String>();
 
-	List<String> newAddress = new ArrayList<String>();
-	@SuppressWarnings("rawtypes")
-	List floorNum = new ArrayList();
-
+	
+	
 	List<Integer> indDoorN = new ArrayList<Integer>();
 	List<Integer> endIndexDoor = new ArrayList<Integer>();
 
@@ -93,146 +102,102 @@ public class InosatData {
 				} else if (i == 1) {
 					cliName.add(listValues.get(i).toString());
 				} else if (i == 2) {
-					inoAddressValues.add(listValues.get(i).toString());
+					addressValues.add(listValues.get(i).toString());
 				} else if (i == 3) {
 					localidade.add(listValues.get(i).toString());
+				} else if (i == 4) {
+					nif.add(listValues.get(i).toString());
+				} else if (i == 5) {
+					telephone.add(listValues.get(i).toString());
+				} else if (i == 6) {
+					codPostal.add(listValues.get(i).toString());
 				}
 			}
 
 		}// end of outer for
 
 		// go through all addresses, find door number and separate
-		for (String addressStr : inoAddressValues) {
-			// run the findit method with the separated address
+		for (String addressStr : addressValues) {
+
 			SubAddress = addressStr;
-			//try{
-				
-				FindPattern find = new FindPattern(SubAddress);
-				indDoorN.add(find.getIndDoorN());
-				endIndexDoor.add(find.getEndIndexDoor());
-			//findIt(addressStr); 
-			
-			//}catch (Exception e) {
-			//	JOptionPane.showMessageDialog(null,"ERRO AO LER MORADA","ERRO",JOptionPane.ERROR_MESSAGE);
-			//	e.printStackTrace();
-			//}
+			// try{
+
+			// for every address instantiate the FindPattern class that will search the
+			// address with regular expressions for door no.
+			FindPattern find = new FindPattern(SubAddress);
+			indDoorN.add(find.getIndDoorN());
+			endIndexDoor.add(find.getEndIndexDoor());
 
 		}
+			// run the method that will concatenate some information after
+			// getting the indexes
+			mountString();
 
-//		try {
-//			wait(10000);
+			// } catch (InterruptedException e) {
+			// //
+			// JOptionPane.showMessageDialog(null,"ERRO AO LER MORADA","ERRO",JOptionPane.ERROR_MESSAGE);
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
 		
-			// run the method that will concatenate some information after getting the indexes
-		mountString();
-		
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-	
 	}
+	
 
-//	
-//	/** 
-//	* Search address string with regular expressions and get the index at door no.
-//	*
-//	*
-//	*/
-//	
-//	public void findIt(String findPat) throws Exception {
-//
-//		//int subIndex = 0;
-//		
-//		//regular expressions for searching door no.
-//		String pattern1 = "(\\sN\\u00BA\\s\\d+)|(Nº\\s\\d+)|(,N\\d+)|(,N\\s\\d+)|(\\sN\\s\\d+)||(nº\\d+)(\\sNº.\\s\\d+)";
-//		String pattern2 = "(LOTE\\s\\d*)|(lote\\s\\d*)|(Lote\\s\\d*)|(Lote\\d*)|(Lt\\s\\d*)|(Lt\\d*)|(Lt.\\d*)";
-//		String pattern3 = "(\\s\\d+\\w$)|(\\s\\d*,)|(\\sN\\d+$)|(\\d$)|(\\s\\d*\\s)";
-//		String pattern4 = "(RUA\\s\\d*)|(AV.\\s\\d*)|(\\srua\\s\\d*)"
-//				+ "|(av\\s\\d*)|([Rr]\\s\\d*)|(AVENIDA\\s\\d*)"
-//				+ "|(Avenida\\s\\d*)|(avenida\\s\\d*)|(\\w\\s\\d*\\sDE)";
-//		
-//		Pattern p1 = Pattern.compile("\\sN\\u00BA\\s\\d+");
-//		//Pattern p1 = Pattern.compile(pattern1, Pattern.CASE_INSENSITIVE);
-//		Pattern p2 = Pattern.compile(pattern2, Pattern.CASE_INSENSITIVE);
-//		Pattern p3 = Pattern.compile(pattern3, Pattern.CASE_INSENSITIVE);
-//		Pattern p4 = Pattern.compile(pattern4, Pattern.CASE_INSENSITIVE);
-//
-//		
-//		Matcher m1 = p1.matcher(findPat);
-//		Matcher m2 = p2.matcher(findPat);
-//		Matcher m3 = p3.matcher(findPat);
-//		Matcher m4 = p4.matcher(findPat);
-//
-//		//findPat = findPat.trim().intern().toUpperCase().toString();
-//		int subIndex =0;
-//		//if (m4.find()){
-//		//	
-//		//	System.out.println(findPat);
-//		//	System.out.println("found" + m4.group());
-//		//	subIndex = m4.end();
-//		//	System.out.println("found "+ subIndex);
-//		//}
-//		//get the last index save use a substring from the last index
-//		//run a search again but add the last index for the ArrayList
-//		
-//		
-//		if (m1.find()) {
-//			
-//			System.out.println(findPat);
-//			System.out.println(m1.group());
-//			
-//			indDoorN.add(m1.start());//start index number
-//			endIndexDoor.add(m1.end());//end index number
-//			//subIndex = 0;
-//		
-//		} else if (m2.find()) {
-//			
-//			System.out.println(findPat);
-//			System.out.println(m2.group());
-//			indDoorN.add(m2.start());
-//			endIndexDoor.add(m2.end());
-//			//subIndex = 0;
-//		
-//		} else if (m3.find()) {
-//			
-//			System.out.println(findPat);
-//			System.out.println(m3.group());
-//			indDoorN.add(m3.start());
-//			endIndexDoor.add(m3.end());
-//			//subIndex = 0;
-//			
-//		} else {
-//			indDoorN.add(0);
-//			endIndexDoor.add(0);
-//			//subIndex = 0;
-//
-//		}
-//			
-//	} // end of FindIt()
-
-	@SuppressWarnings({ "unchecked" })
 	public void mountString() {
 
-		System.out.println(indDoorN);
-		System.out.println(endIndexDoor);
+		//System.out.println(indDoorN);
+		//System.out.println(endIndexDoor);
 		
 	try {
 		int index = 0;
 		for (; index < indDoorN.size(); index++) {
-			String tempDoor = inoAddressValues.get(index);
+			String tempDoor = addressValues.get(index);
+			
+			if (indDoorN.get(index)==0 & endIndexDoor.get(index)==0) {
+				
+				// add numclient to a new list and save a file with this information
+				// list of addresses that were not processed
+				notProcessedClient.add(numClie.get(index));
+				notProcessedName.add(cliName.get(index));
+				notProcessedAddress.add(addressValues.get(index));
+				notProcessedLocal.add(localidade.get(index));
+				notProcessedNIF.add(nif.get(index));
+				notProcessedTel.add(telephone.get(index));
+				notProcessedCodPostal.add(codPostal.get(index));
+				
+				//portaNum.add(" ");
+				//floorNum.add(" ");
+				//newAddress.add(inoAddressValues.get(index));
 
-			portaNum.add(tempDoor.substring(indDoorN.get(index),
-					endIndexDoor.get(index)));
-			floorNum.add(tempDoor.substring(endIndexDoor.get(index)));
-			newAddress.add(tempDoor.substring(0, indDoorN.get(index)));
+				} else {
 
-		}// end of for loop
+					inoCodigoPost.add(codPostal.get(index));
+					inoLocal.add(localidade.get(index));
+					inoPortaNum.add(tempDoor.substring(indDoorN.get(index),
+							endIndexDoor.get(index)));
+					inoFloorNum
+							.add(tempDoor.substring(endIndexDoor.get(index)));
+					inoNewAddress
+							.add(tempDoor.substring(0, indDoorN.get(index)));
+					inoColCliente.add(numClie.get(index) + " "
+							+ cliName.get(index) + " "
+							+ (tempDoor.substring(endIndexDoor.get(index))));
+					
+					
+					centralClient.add(numClie.get(index));
+					centralName.add(cliName.get(index));
+					centralAddress.add(addressValues.get(index));
+					centralTel.add(telephone.get(index));
+
+				}
+
+			}// end of for loop
 
 		// this for loop is used for concatenation
-		for (int i = 0; i < numClie.size(); i++) {
-			colCliente.add(numClie.get(i) + " " + cliName.get(i) + " "
-					+ floorNum.get(i));
-		}// end of for loop
+		//for (int i = 0; i < numClie.size(); i++) {
+		//	colCliente.add(numClie.get(i) + " " + cliName.get(i) + " "
+		//			+ floorNum.get(i));
+		//}// end of for loop
 
 	} catch (Exception e){
 		
@@ -271,7 +236,7 @@ public class InosatData {
 		// int rownum = 0;
 
 		// for (String key : keyset) {
-		for (int i = 0; i <= DataWorkList.lastRowNumber; i++) {
+		for (int i = 0; i <= inoColCliente.size(); i++) {
 			row = sheet.createRow(i);
 
 			int cellnum = 0;
@@ -290,22 +255,28 @@ public class InosatData {
 				++cellnum;
 				cell = row.createCell(cellnum);
 				cell.setCellValue("LOCALIDADE");
+				++cellnum;
+				cell = row.createCell(cellnum);
+				cell.setCellValue("CODIGO POSTAL");
 				cellnum++;
 
 				// All other rows create cells with the data from the lists
 			} else {
 				cell = row.createCell(cellnum);
-				// if (objArr instanceof String)
-				cell.setCellValue((String) colCliente.get(i));
+				
+				cell.setCellValue((String) inoColCliente.get(i-1)); // column 1
 				++cellnum;
 				cell = row.createCell(cellnum);
-				cell.setCellValue((String) newAddress.get(i));
+				cell.setCellValue((String) inoNewAddress.get(i-1)); // column 2
 				++cellnum;
 				cell = row.createCell(cellnum);
-				cell.setCellValue((String) portaNum.get(i));
+				cell.setCellValue((String) inoPortaNum.get(i-1)); // column 3
 				++cellnum;
 				cell = row.createCell(cellnum);
-				cell.setCellValue((String) localidade.get(i));
+				cell.setCellValue((String) inoLocal.get(i-1));  // column 4
+				++cellnum;
+				cell = row.createCell(cellnum);
+				cell.setCellValue((String) inoCodigoPost.get(i-1)); // column 5
 				cellnum++;
 
 			}
@@ -346,7 +317,11 @@ public class InosatData {
 			e.printStackTrace();
 		}
 	
-		JOptionPane.showMessageDialog(null,"FICHEIROS GRAVADOS COM SUCESSO","OK",JOptionPane.INFORMATION_MESSAGE);
+		// instantiate missed address file
+		new WriteFailFile();
+		
+		new WriteCentralFile(centralClient, centralName, centralAddress, centralTel);
+		//JOptionPane.showMessageDialog(null,"FICHEIROS GRAVADOS COM SUCESSO","OK",JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 
