@@ -1,8 +1,10 @@
 package jofima;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -76,8 +78,12 @@ public class InosatData {
 	List<Integer> endIndexDoor = new ArrayList<Integer>();
 
 	//int subIndex = 0;
-	String SubAddress;
+	List<String> subAddress =new ArrayList<String>();
+	String subAddr;
 	// StringBuilder joinAddr = new StringBuilder();
+	
+	String streetIn;
+	String streetOut;
 
 	// int indDoorN = 0;
 	// int endIndexDoor = 0;
@@ -98,19 +104,21 @@ public class InosatData {
 
 				// Column 0, 1, 2, 3 from excel file to separate Lists
 				if (i == 0) {
-					numClie.add(listValues.get(i).toString());
+					numClie.add(listValues.get(i).toString().toUpperCase());
 				} else if (i == 1) {
-					cliName.add(listValues.get(i).toString());
+					cliName.add(listValues.get(i).toString().toUpperCase());
 				} else if (i == 2) {
-					addressValues.add(listValues.get(i).toString());
+					addressValues.add(listValues.get(i).toString().toUpperCase());
 				} else if (i == 3) {
-					localidade.add(listValues.get(i).toString());
+					
+					// in this case run the method to change the incorrect entries
+					localidade.add(localChange(listValues.get(i).toString().toUpperCase()));
 				} else if (i == 4) {
-					nif.add(listValues.get(i).toString());
+					nif.add(listValues.get(i).toString().toUpperCase());
 				} else if (i == 5) {
-					telephone.add(listValues.get(i).toString());
+					telephone.add(listValues.get(i).toString().toUpperCase());
 				} else if (i == 6) {
-					codPostal.add(listValues.get(i).toString());
+					codPostal.add(listValues.get(i).toString().toUpperCase());
 				}
 			}
 
@@ -119,12 +127,17 @@ public class InosatData {
 		// go through all addresses, find door number and separate
 		for (String addressStr : addressValues) {
 
-			SubAddress = addressStr;
+			
+			// correct all addresses using method changeStreet
+			subAddress.add(changeStreet(addressStr));
+			subAddr = changeStreet(addressStr);
+						
+			//System.out.println(subAddress);
 			// try{
 
 			// for every address instantiate the FindPattern class that will search the
 			// address with regular expressions for door no.
-			FindPattern find = new FindPattern(SubAddress);
+			FindPattern find = new FindPattern(subAddr);
 			indDoorN.add(find.getIndDoorN());
 			endIndexDoor.add(find.getEndIndexDoor());
 
@@ -142,33 +155,51 @@ public class InosatData {
 		
 	}
 	
-
+	/**
+	 * mountString method will concatenate the rest of the strings separated
+	 * from door number and will add it to a list. It will also check if a
+	 * door number exists and will use another list for a fail file.
+	 * 
+	 */
+	
 	public void mountString() {
 
-		//System.out.println(indDoorN);
-		//System.out.println(endIndexDoor);
-		
-	try {
-		int index = 0;
-		for (; index < indDoorN.size(); index++) {
-			String tempDoor = addressValues.get(index);
-			
-			if (indDoorN.get(index)==0 & endIndexDoor.get(index)==0) {
-				
-				// add numclient to a new list and save a file with this information
-				// list of addresses that were not processed
-				notProcessedClient.add(numClie.get(index));
-				notProcessedName.add(cliName.get(index));
-				notProcessedAddress.add(addressValues.get(index));
-				notProcessedLocal.add(localidade.get(index));
-				notProcessedNIF.add(nif.get(index));
-				notProcessedTel.add(telephone.get(index));
-				notProcessedCodPostal.add(codPostal.get(index));
-				
-				//portaNum.add(" ");
-				//floorNum.add(" ");
-				//newAddress.add(inoAddressValues.get(index));
+		// System.out.println(indDoorN);
+		// System.out.println(endIndexDoor);
 
+		try {
+			int index = 0;
+			for (; index < indDoorN.size(); index++) {
+				String tempDoor = subAddress.get(index);
+
+				if (indDoorN.get(index) == 0 & endIndexDoor.get(index) == 0) {
+
+					// add numclient to a new list and save a file with this
+					// information
+					// list of addresses that were not processed
+					notProcessedClient.add(numClie.get(index));
+					notProcessedName.add(cliName.get(index));
+					notProcessedAddress.add(addressValues.get(index));
+					notProcessedLocal.add(localidade.get(index));
+					notProcessedNIF.add(nif.get(index));
+					notProcessedTel.add(telephone.get(index));
+					notProcessedCodPostal.add(codPostal.get(index));
+
+					// portaNum.add(" ");
+					// floorNum.add(" ");
+					// newAddress.add(inoAddressValues.get(index));
+
+				} else if (codPostal.get(index).length() < 7){
+					
+					notProcessedClient.add(numClie.get(index));
+					notProcessedName.add(cliName.get(index));
+					notProcessedAddress.add(addressValues.get(index));
+					notProcessedLocal.add(localidade.get(index));
+					notProcessedNIF.add(nif.get(index));
+					notProcessedTel.add(telephone.get(index));
+					notProcessedCodPostal.add(codPostal.get(index));
+
+					
 				} else {
 
 					inoCodigoPost.add(codPostal.get(index));
@@ -182,8 +213,7 @@ public class InosatData {
 					inoColCliente.add(numClie.get(index) + " "
 							+ cliName.get(index) + " "
 							+ (tempDoor.substring(endIndexDoor.get(index))));
-					
-					
+
 					centralClient.add(numClie.get(index));
 					centralName.add(cliName.get(index));
 					centralAddress.add(addressValues.get(index));
@@ -193,29 +223,29 @@ public class InosatData {
 
 			}// end of for loop
 
-		// this for loop is used for concatenation
-		//for (int i = 0; i < numClie.size(); i++) {
-		//	colCliente.add(numClie.get(i) + " " + cliName.get(i) + " "
-		//			+ floorNum.get(i));
-		//}// end of for loop
+			// this for loop is used for concatenation
+			// for (int i = 0; i < numClie.size(); i++) {
+			// colCliente.add(numClie.get(i) + " " + cliName.get(i) + " "
+			// + floorNum.get(i));
+			// }// end of for loop
 
-	} catch (Exception e){
-		
-		JOptionPane.showMessageDialog(null,"ERRO AO LER MORADA (COL 3?)","ERRO",JOptionPane.ERROR_MESSAGE);
-		e.printStackTrace();
-	}
+		} catch (Exception e) {
+
+			JOptionPane.showMessageDialog(null, "ERRO AO LER MORADA (COL 3?)",
+					"ERRO", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
 
 		// initiate writeInoFile after organizing the information
 		writeInoFile();
 	}
 
-	
 	/**
 	 * 
-	 * The method writeInoFiles is used to create the excel worksheet
-	 * and it's rows and cells with the information gathered through the
-	 * Lists - that represent rows
-	 * After all the cells are filled write the excel file to disk
+	 * The method writeInoFiles is used to create the excel worksheet and it's
+	 * rows and cells with the information gathered through the Lists - that
+	 * represent rows After all the cells are filled write the excel file to
+	 * disk
 	 * 
 	 */
 	
@@ -246,6 +276,7 @@ public class InosatData {
 				cell = row.createCell(cellnum);
 				// if (objArr instanceof String)
 				cell.setCellValue("CLIENTE");
+				//	cell.setCellStyle();
 				++cellnum;
 				cell = row.createCell(cellnum);
 				cell.setCellValue("MORADA");
@@ -325,6 +356,100 @@ public class InosatData {
 	}
 	
 
-	
+	public String changeStreet(String street) {
+		
+		String newStreet = null;
+		try {
+
+			Path path = Paths.get(NewFrame.pathFile + "\\" + "ruas.txt");
+
+			BufferedReader br = Files.newBufferedReader(path);
+			String line;
+			while ((line = br.readLine()) != null) {
+				// String[] split = new String[2];
+				String[] split = line.split(",");
+
+				streetIn = split[0];
+				streetOut = split[1];
+
+				if (street.startsWith(streetIn)) {
+					// }
+					//System.out.println(split[0]);
+					//System.out.println(split[1]);
+					// newStreet = street.replaceAll("^" + streetIn, streetOut);
+					newStreet = street.replaceFirst(streetIn, streetOut);
+					//System.out.println(street);
+					// System.out.println(newStreet);
+					break;
+					// return newStreet;
+
+				} else {
+					newStreet = street;
+				}
+			} // while loop
+			
+			br.close();
+		
+		} catch (NoSuchFileException e) {
+			
+			JOptionPane.showMessageDialog(null,"FICHEIRO RUAS.TXT NÃO ENCONTRADO: "+NewFrame.pathFile,"ERRO",JOptionPane.ERROR_MESSAGE);
+			
+		} catch (Exception e) {
+
+			JOptionPane.showMessageDialog(null,"ERRO ALTERAÇÕES FICHEIRO RUAS.TXT","ERRO",JOptionPane.ERROR_MESSAGE);
+			
+			e.printStackTrace();
+			
+		}
+
+		return newStreet;
+	} // end of method changeStreet
+
+	private String localChange(String locali) {
+
+		String newLocalidade = null;
+
+		try {
+
+			Path path = Paths.get(NewFrame.pathFile + "\\" + "localidades.txt");
+
+			BufferedReader br = Files.newBufferedReader(path);
+			String line;
+			while ((line = br.readLine()) != null) {
+				String[] split = line.split(",");
+
+				String localIn = split[0];
+				String localOut = split[1];
+
+				if (locali.startsWith(localIn)) {
+					
+					newLocalidade = locali.replaceFirst(localIn, localOut);
+
+					break;
+
+				} else {
+					newLocalidade = locali;
+				}
+			} // while loop
+			
+			br.close();
+
+		} catch (NoSuchFileException e) {
+
+			JOptionPane.showMessageDialog(null,
+					"FICHEIRO LOCALIDADES.TXT NÃO ENCONTRADO: " + NewFrame.pathFile,
+					"ERRO", JOptionPane.ERROR_MESSAGE);
+
+		} catch (Exception e) {
+
+			JOptionPane.showMessageDialog(null, "ERRO ALTERAÇÕES FICHEIRO LOCALIDADES.TXT", "ERRO", JOptionPane.ERROR_MESSAGE);
+
+			e.printStackTrace();
+
+		}
+
+		return newLocalidade;
+
+	}
 
 }// end of class

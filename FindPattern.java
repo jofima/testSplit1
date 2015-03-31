@@ -10,6 +10,9 @@ public class FindPattern {
 	//private List<Integer> indDoorN = new ArrayList<Integer>();
 	//private List<Integer> endIndexDoor = new ArrayList<Integer>();
 	
+	private int subStart;
+	private int subEnd;
+	
 	private int indDoorN;
 	private int endIndexDoor;
 	
@@ -25,6 +28,7 @@ public class FindPattern {
 	
 	/**
 	 * use regular expressions to find what's needed in the address
+	 * Run another pattern to get just the digits - FindNum class
 	 * 
 	 * @param findPat
 	 */
@@ -34,8 +38,8 @@ public class FindPattern {
 		String pattern0 = "\\sN\\u00BA\\s\\d+"; //(space + N + º + space + 1 or more digits )
 		String pattern1 = "(Nº\\d+[a-z]\\s)|(Nº\\s\\d+-[a-z]\\s)|(Nº\\s\\d+)|(\\sN\\s\\d+)|(nº\\d+)|(\\sNº:\\s\\d+)|(Nº.\\d+)|(N\\sº\\s\\d+)|(º\\s\\d+)|\\sN\\d+";
 		String pattern2 = "(LOTE\\s\\d+)|(lOTE\\s\\d+)|(LOTE.\\d+)|(LOTE\\d+)|(Lt\\s\\d+)|(LT\\d+)|(LT.\\d+)|(LT\\s[A-Z])|(LOTE\\s[A-Z])|(LT-\\d+)|(\\sL-\\d+)|(L.-.\\d+)";
-		String pattern3 = "(\\s\\d+\\w$)|(\\s\\d+,)|(\\sN\\d+$)|(\\d+$)|(\\s\\d+\\s)";
-		String pattern4 = "(,N\\d+)|(,N\\s\\d+)|(,\\s\\d+$)|(,\\s\\d+)|(,d+)";
+		String pattern3 = "(\\s\\d+\\w$)|(\\s\\d+,)|(\\sN\\d+$)|(\\d+$)|(\\s\\d+-)|(\\s\\d+\\s)";
+		String pattern4 = "(,N\\d+)|(,N\\s\\d+)|(,\\s\\d+$)|(,\\s\\d+)|(,d+)|(\\s[A-Z]\\d+)";
 		String pattern5 = "(RUA\\s\\d+)|(AVENIDA\\s\\d+)|(AV.\\s\\d+)";
 //				+ ")|(AV.\\s\\d*)|(\\srua\\s\\d*)"
 //				+ "|(av\\s\\d*)|([Rr]\\s\\d*)|(AVENIDA\\s\\d*)"
@@ -70,9 +74,16 @@ public class FindPattern {
 		
 		if (m0.find(subIndex)) {
 			
-			indDoorN = (m0.start());
-			endIndexDoor = (m0.end());
+			subStart = (m0.start());
+			subEnd = (m0.end());
 		
+			
+			FindNum numFound = new FindNum(findPat.substring(subStart, subEnd));
+			
+			indDoorN = subStart + numFound.getStartIndex();
+			endIndexDoor = subStart + numFound.getEndIndex(); //
+			//use and copy to other finds and test 
+			
 			//System.out.println(findPat);
 			//System.out.println(m0.group());
 		
@@ -81,33 +92,52 @@ public class FindPattern {
 			//System.out.println(findPat);
 			//System.out.println(m1.group());
 
-			indDoorN = (m1.start());// start index number
-			endIndexDoor = (m1.end());// end index number
-			// subIndex = 0;
+			subStart = (m1.start());
+			subEnd = (m1.end());
+		
+			//System.out.println(subStart + " " + subEnd);
+			
+			FindNum numFound = new FindNum(findPat.substring(subStart, subEnd));
+			
+			indDoorN = subStart + numFound.getStartIndex();
+			endIndexDoor = subStart + numFound.getEndIndex();
 
 		} else if (m2.find(subIndex)) {
 
-			//System.out.println(findPat);
-			//System.out.println(m2.group());
-			indDoorN = (m2.start());
-			endIndexDoor = (m2.end());
-			// subIndex = 0;
+			subStart = (m2.start());
+			subEnd = (m2.end());
+			
+			//System.out.println(subStart + " " + subEnd);
+		
+			FindNum numFound = new FindNum(findPat.substring(subStart, subEnd));
+			
+			indDoorN = subStart + numFound.getStartIndex();
+			endIndexDoor = subStart + numFound.getEndIndex();
 
 		} else if (m3.find(subIndex)) {
 
-			//System.out.println(findPat);
-			//System.out.println(m3.group());
-			indDoorN = (m3.start());
-			endIndexDoor = (m3.end());
-			// subIndex = 0;
+			subStart = (m3.start());
+			subEnd = (m3.end());
+		
+			//System.out.println(subStart + " " + subEnd);
+			
+			FindNum numFound = new FindNum(findPat.substring(subStart, subEnd));
+			
+			indDoorN = subStart + numFound.getStartIndex();
+			endIndexDoor = subStart + numFound.getEndIndex();
 		
 		
 		} else if (m4.find(subIndex)) {
 
-			//System.out.println(findPat);
-			//System.out.println(m4.group());
-			indDoorN = (m4.start()-1);
-			endIndexDoor = (m4.end());
+			subStart = (m4.start());
+			subEnd = (m4.end());
+		
+			//System.out.println(subStart + " " + subEnd);
+						
+			FindNum numFound = new FindNum(findPat.substring(subStart, subEnd));
+			
+			indDoorN = subStart + numFound.getStartIndex();
+			endIndexDoor = subStart + numFound.getEndIndex();
 				
 		} else {
 			indDoorN = 0;
