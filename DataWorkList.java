@@ -32,10 +32,10 @@ public class DataWorkList {
 	@SuppressWarnings("rawtypes")
 	ArrayList rowCellNo = new ArrayList();
 
-	@SuppressWarnings("rawtypes")
-	ArrayList centralFile = new ArrayList();
-	@SuppressWarnings("rawtypes")
-	ArrayList centralCell = new ArrayList();
+//	@SuppressWarnings("rawtypes")
+//	ArrayList centralFile = new ArrayList();
+//	@SuppressWarnings("rawtypes")
+//	ArrayList centralCell = new ArrayList();
 
 	@SuppressWarnings("rawtypes")
 	static Map dataWork = new TreeMap();
@@ -115,10 +115,11 @@ public class DataWorkList {
 		for (; i <= lastRowNumber; i++) {
 
 			// String key, ArrayList value
+			// key - row no., value - list with excel info
 			dataWork.put(rowCellNo.get(i), sheetData.subList(x, z));
 
 			//System.out.println(dataWork.get(String.valueOf(i)));
-			x += maxNumCells;
+			x += maxNumCells; //for whole row
 			z += maxNumCells;
 
 
@@ -126,17 +127,12 @@ public class DataWorkList {
 		} // end of for loop
 
 	
-		
-		//Run and process central file and inoSat file
-		//new CentralData().central();
-
+		//Run and process inoSatData class that will process the data and files
+	
 		new InosatData().inosat();
 		
 	} // end of mapIt()
 
-
-	
-	
 	
 }// end of class
 

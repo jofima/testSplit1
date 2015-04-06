@@ -1,7 +1,9 @@
 package jofima;
 
+import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
+
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -34,6 +36,7 @@ public class NewFrame extends javax.swing.JFrame {
 	        jLabel1 = new javax.swing.JLabel();
 	        jLabel2 = new javax.swing.JLabel();
 	        jLabel3 = new javax.swing.JLabel();
+	        jLabel4 = new javax.swing.JLabel();
 
 	        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -50,12 +53,18 @@ public class NewFrame extends javax.swing.JFrame {
 	                jButton2ActionPerformed(evt);
 	            }
 	        });
-
-	        jLabel1.setText("Carregue para abrir ficheiro Excel");
+	        
+	        java.awt.Font font = new java.awt.Font(jLabel4.getFont().getName(), Font.ITALIC, jLabel4.getFont().getSize());
+	        
+	        jLabel1.setText("Carregue para abrir ficheiro Excel de input");
 
 	        jLabel2.setText("Certifique que o ficheiro inicia com as seguintes colunas:");
 
-	        jLabel3.setText("NumCliente, nome, morada, localidade, NIF, telefone, codigo postal");
+	        jLabel3.setText("Num Cliente, Nome, Morada, Localidade, NIF,");
+	        jLabel3.setFont(font);
+	        
+	        jLabel4.setText("Telefone, Morada2, Codigo postal, Designação Postal");
+	        jLabel4.setFont(font);
 
 	        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
 	        getContentPane().setLayout(layout);
@@ -64,7 +73,8 @@ public class NewFrame extends javax.swing.JFrame {
 	            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
 	                .addGap(75, 75, 75)
 	                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-	                    .addComponent(jLabel3)
+	                    .addComponent(jLabel4)
+	                	.addComponent(jLabel3)
 	                    .addComponent(jLabel2)
 	                    .addComponent(jLabel1))
 	                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -82,8 +92,10 @@ public class NewFrame extends javax.swing.JFrame {
 	                .addComponent(jLabel1)
 	                .addGap(35, 35, 35)
 	                .addComponent(jLabel2)
-	                .addGap(31, 31, 31)
+	                .addGap(15, 15, 15)
 	                .addComponent(jLabel3)
+	                .addGap(10, 10, 10)
+	                .addComponent(jLabel4)
 	                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
 	                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
 	                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -137,5 +149,5 @@ public class NewFrame extends javax.swing.JFrame {
 	    private javax.swing.JLabel jLabel1;
 	    private javax.swing.JLabel jLabel2;
 	    private javax.swing.JLabel jLabel3;
-	                       
+	    private javax.swing.JLabel jLabel4;                  
 	}

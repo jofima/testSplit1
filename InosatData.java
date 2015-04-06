@@ -17,6 +17,8 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -26,6 +28,8 @@ import org.apache.poi.ss.usermodel.Row;
  * The goal here is to get from the Excel file the column with the address which
  * contains the door no. inside the address column and generate a new file with
  * concatenated clientNo+Name+FloorNo, address, doorNo, PostalCode
+ * 
+ * generated a whole lot of Lists for every column, information
  * 
  * For concatenation I separated the information into lists and joined the Strings
  * into a new List
@@ -43,14 +47,17 @@ public class InosatData {
 
 	//@SuppressWarnings("rawtypes")
 	//Map writeMap = new TreeMap();
-
-	List<String> addressValues = new ArrayList<String>();
-	List<String> cliName = new ArrayList<String>();
+	
+	
 	List<String> numClie = new ArrayList<String>();
+	List<String> cliName = new ArrayList<String>();
+	List<String> addressValues = new ArrayList<String>();
 	List<String> localidade = new ArrayList<String>();
 	List<String> nif = new ArrayList<String>();
 	List<String> telephone = new ArrayList<String>();
+	List<String> morada2 = new ArrayList<String>();
 	List<String> codPostal = new ArrayList<String>();
+	List<String> desigPostal = new ArrayList<String>();
 	
 	static List<String> notProcessedClient = new ArrayList<String>();
 	static List<String> notProcessedName = new ArrayList<String>();
@@ -58,22 +65,24 @@ public class InosatData {
 	static List<String> notProcessedLocal = new ArrayList<String>();
 	static List<String> notProcessedNIF = new ArrayList<String>();
 	static List<String> notProcessedTel = new ArrayList<String>();
+	static List<String> notProcessedMorada2 = new ArrayList<String>();
 	static List<String> notProcessedCodPostal = new ArrayList<String>();
+	static List<String> notProcessedDesigPostal = new ArrayList<String>();
 
-	List<String> centralAddress = new ArrayList<String>();
 	List<String> centralClient = new ArrayList<String>();
 	List<String> centralName = new ArrayList<String>();
+	List<String> centralAddress = new ArrayList<String>();
 	List<String> centralTel = new ArrayList<String>();
+	
 
 	List<String> inoColCliente = new ArrayList<String>();
-	List<String> inoPortaNum = new ArrayList<String>();
 	List<String> inoNewAddress = new ArrayList<String>();
-	List<String> inoFloorNum = new ArrayList<String>();
-	List<String> inoLocal = new ArrayList<String>();
+	List<String> inoPortaNum = new ArrayList<String>();
 	List<String> inoCodigoPost = new ArrayList<String>();
+	List<String> inoDesigPostal = new ArrayList<String>();
+	//List<String> inoFloorNum = new ArrayList<String>();
 
-	
-	
+		
 	List<Integer> indDoorN = new ArrayList<Integer>();
 	List<Integer> endIndexDoor = new ArrayList<Integer>();
 
@@ -108,19 +117,23 @@ public class InosatData {
 				} else if (i == 1) {
 					cliName.add(listValues.get(i).toString().toUpperCase());
 				} else if (i == 2) {
-					addressValues.add(listValues.get(i).toString().toUpperCase());
+					//run changeStreet method for correction when getting values
+					addressValues.add(changeStreet(listValues.get(i).toString().toUpperCase()));
 				} else if (i == 3) {
-					
-					// in this case run the method to change the incorrect entries
-					localidade.add(localChange(listValues.get(i).toString().toUpperCase()));
+					localidade.add(listValues.get(i).toString().toUpperCase());
 				} else if (i == 4) {
 					nif.add(listValues.get(i).toString().toUpperCase());
 				} else if (i == 5) {
 					telephone.add(listValues.get(i).toString().toUpperCase());
 				} else if (i == 6) {
+					morada2.add(listValues.get(i).toString().toUpperCase());
+				} else if (i == 7) {
 					codPostal.add(listValues.get(i).toString().toUpperCase());
-				}
-			}
+				} else if (i == 8) {
+					// in this case run the method to change the incorrect entries
+					desigPostal.add(localChange(listValues.get(i).toString().toUpperCase()));
+				} //end ifs
+			} //inner for
 
 		}// end of outer for
 
@@ -128,16 +141,17 @@ public class InosatData {
 		for (String addressStr : addressValues) {
 
 			
-			// correct all addresses using method changeStreet
-			subAddress.add(changeStreet(addressStr));
-			subAddr = changeStreet(addressStr);
-						
+//			// correct all addresses using method changeStreet 
+//			//(this should be run directly when mounting the arraylist above
+			subAddress.add(addressStr);
+//			subAddr = changeStreet(addressStr);
+//						
 			//System.out.println(subAddress);
 			// try{
 
 			// for every address instantiate the FindPattern class that will search the
 			// address with regular expressions for door no.
-			FindPattern find = new FindPattern(subAddr);
+			FindPattern find = new FindPattern(addressStr);
 			indDoorN.add(find.getIndDoorN());
 			endIndexDoor.add(find.getEndIndexDoor());
 
@@ -149,7 +163,7 @@ public class InosatData {
 			// } catch (InterruptedException e) {
 			// //
 			// JOptionPane.showMessageDialog(null,"ERRO AO LER MORADA","ERRO",JOptionPane.ERROR_MESSAGE);
-			// TODO Auto-generated catch block
+			
 			// e.printStackTrace();
 			// }
 		
@@ -158,7 +172,8 @@ public class InosatData {
 	/**
 	 * mountString method will concatenate the rest of the strings separated
 	 * from door number and will add it to a list. It will also check if a
-	 * door number exists and will use another list for a fail file.
+	 * door number exists and will use another list for a fail file as well as
+	 * incorrect postal codes.
 	 * 
 	 */
 	
@@ -176,50 +191,64 @@ public class InosatData {
 
 					// add numclient to a new list and save a file with this
 					// information
-					// list of addresses that were not processed
+					
+					/* list of addresses that were not processed due to not finding
+					 * door number with pattern
+					 */
 					notProcessedClient.add(numClie.get(index));
 					notProcessedName.add(cliName.get(index));
 					notProcessedAddress.add(addressValues.get(index));
 					notProcessedLocal.add(localidade.get(index));
 					notProcessedNIF.add(nif.get(index));
 					notProcessedTel.add(telephone.get(index));
+					notProcessedMorada2.add(morada2.get(index));					
 					notProcessedCodPostal.add(codPostal.get(index));
-
+					notProcessedDesigPostal.add(desigPostal.get(index));
+					
 					// portaNum.add(" ");
 					// floorNum.add(" ");
 					// newAddress.add(inoAddressValues.get(index));
 
 				} else if (codPostal.get(index).length() < 7){
 					
+					/*
+					 * list that was not processed due to incomplete postal code
+					 */
 					notProcessedClient.add(numClie.get(index));
 					notProcessedName.add(cliName.get(index));
 					notProcessedAddress.add(addressValues.get(index));
 					notProcessedLocal.add(localidade.get(index));
 					notProcessedNIF.add(nif.get(index));
 					notProcessedTel.add(telephone.get(index));
+					notProcessedMorada2.add(morada2.get(index));
 					notProcessedCodPostal.add(codPostal.get(index));
-
+					notProcessedDesigPostal.add(desigPostal.get(index));
 					
 				} else {
-
-					inoCodigoPost.add(codPostal.get(index));
-					inoLocal.add(localidade.get(index));
-					inoPortaNum.add(tempDoor.substring(indDoorN.get(index),
-							endIndexDoor.get(index)));
-					inoFloorNum
-							.add(tempDoor.substring(endIndexDoor.get(index)));
+					/*
+					 * hold in each list the information to be processed to file
+					 * with the required concatenation of information in each
+					 * field / list - inosat file 
+					 */
+					inoColCliente.add(numClie.get(index) + " "+ cliName.get(index) + " "
+							+ (tempDoor.substring(endIndexDoor.get(index))));
 					inoNewAddress
 							.add(tempDoor.substring(0, indDoorN.get(index)));
-					inoColCliente.add(numClie.get(index) + " "
-							+ cliName.get(index) + " "
-							+ (tempDoor.substring(endIndexDoor.get(index))));
-
+					inoPortaNum.add(tempDoor.substring(indDoorN.get(index),
+							endIndexDoor.get(index)));
+					inoCodigoPost.add(codPostal.get(index));
+					inoDesigPostal.add(desigPostal.get(index));
+					//inoFloorNum.add(tempDoor.substring(endIndexDoor.get(index)));
+					
+					/*
+					 * central file
+					 */
 					centralClient.add(numClie.get(index));
 					centralName.add(cliName.get(index));
-					centralAddress.add(addressValues.get(index));
+					centralAddress.add(addressValues.get(index)+" ("+localidade.get(index)+")");
 					centralTel.add(telephone.get(index));
 
-				}
+				} // end of ifs
 
 			}// end of for loop
 
@@ -257,7 +286,14 @@ public class InosatData {
 		// Create a blank sheet
 		HSSFSheet sheet = workbook.createSheet("info");
 
-		// Set<String> keyset = writeMap.keySet();
+		//Get access to HSSFCellStyle 
+		HSSFCellStyle style = workbook.createCellStyle();
+		//Create HSSFFont object from the workbook
+        HSSFFont font=workbook.createFont();
+        // set the weight of the font 
+        font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+        // attach the font to the style created earlier 
+        style.setFont(font);
 
 		Row row = null;
 
@@ -276,21 +312,24 @@ public class InosatData {
 				cell = row.createCell(cellnum);
 				// if (objArr instanceof String)
 				cell.setCellValue("CLIENTE");
-				//	cell.setCellStyle();
+				cell.setCellStyle(style);
 				++cellnum;
 				cell = row.createCell(cellnum);
 				cell.setCellValue("MORADA");
+				cell.setCellStyle(style);
 				++cellnum;
 				cell = row.createCell(cellnum);
 				cell.setCellValue("NºPORTA");
-				++cellnum;
-				cell = row.createCell(cellnum);
-				cell.setCellValue("LOCALIDADE");
+				cell.setCellStyle(style);
 				++cellnum;
 				cell = row.createCell(cellnum);
 				cell.setCellValue("CODIGO POSTAL");
+				cell.setCellStyle(style);
 				cellnum++;
-
+				cell = row.createCell(cellnum);
+				cell.setCellValue("DESIGNAÇÃO POSTAL");
+				cell.setCellStyle(style);
+				++cellnum;
 				// All other rows create cells with the data from the lists
 			} else {
 				cell = row.createCell(cellnum);
@@ -304,12 +343,11 @@ public class InosatData {
 				cell.setCellValue((String) inoPortaNum.get(i-1)); // column 3
 				++cellnum;
 				cell = row.createCell(cellnum);
-				cell.setCellValue((String) inoLocal.get(i-1));  // column 4
-				++cellnum;
-				cell = row.createCell(cellnum);
 				cell.setCellValue((String) inoCodigoPost.get(i-1)); // column 5
 				cellnum++;
-
+				cell = row.createCell(cellnum);
+				cell.setCellValue((String) inoDesigPostal.get(i-1));  // column 4
+				++cellnum;
 			}
 
 		}

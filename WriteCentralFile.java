@@ -12,6 +12,8 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -28,6 +30,15 @@ public class WriteCentralFile {
 				// Create a blank sheet
 				HSSFSheet sheet = workbook.createSheet("info");
 
+				//Get access to HSSFCellStyle 
+				HSSFCellStyle style = workbook.createCellStyle();
+				//Create HSSFFont object from the workbook
+		        HSSFFont font=workbook.createFont();
+		        // set the weight of the font 
+		        font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		        // attach the font to the style created earlier 
+		        style.setFont(font);
+		        
 				// Set<String> keyset = writeMap.keySet();
 
 				Row row = null;
@@ -47,16 +58,19 @@ public class WriteCentralFile {
 							cell = row.createCell(cellnum);
 							// if (objArr instanceof String)
 							cell.setCellValue("NUMERO CLIENTE");
+							cell.setCellStyle(style);
 							++cellnum;
 							cell = row.createCell(cellnum);
 							cell.setCellValue("NOME");
+							cell.setCellStyle(style);
 							++cellnum;
 							cell = row.createCell(cellnum);
 							cell.setCellValue("MORADA");
+							cell.setCellStyle(style);
 							++cellnum;
 							cell = row.createCell(cellnum);
 							cell.setCellValue("TELEFONE");
-							
+							cell.setCellStyle(style);
 							cellnum++;
 
 							// All other rows create cells with the data from the lists

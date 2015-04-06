@@ -61,7 +61,13 @@ public class WriteFailFile {
 				cell.setCellValue((String) InosatData.notProcessedTel.get(i));
 				++cellnum;
 				cell = row.createCell(cellnum);
+				cell.setCellValue((String) InosatData.notProcessedMorada2.get(i));
+				++cellnum;
+				cell = row.createCell(cellnum);
 				cell.setCellValue((String) InosatData.notProcessedCodPostal.get(i));
+				++cellnum;
+				cell = row.createCell(cellnum);
+				cell.setCellValue((String) InosatData.notProcessedDesigPostal.get(i));
 				cellnum++;
 
 			
